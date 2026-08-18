@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QualityCheck, QualityCheckStatus, Order, OrderStatus, Product, Customer } from '@/lib/types';
 import { DEMO_PRODUCTS, DEMO_CUSTOMERS } from '@/lib/seed-data';
 import { jarvisAudio } from '@/components/hud/JarvisAudio';
@@ -18,7 +18,7 @@ export default function QualityStation({ onRefreshParent, showToast, isPresentat
   const [loading, setLoading] = useState<boolean>(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [inspectionNotes, setInspectionNotes] = useState<string>('Carton intact, seal verified, item quantity matches order manifest.');
-  const [qcCriteria, setQcCriteria] = useState({
+  const [qcCriteria, setQcCriteria] = useState<Record<string, boolean>>({
     sealIntact: true,
     correctItems: true,
     noDamage: true,
@@ -101,9 +101,9 @@ export default function QualityStation({ onRefreshParent, showToast, isPresentat
     }
   };
 
-  const pendingChecks = checks.filter((c) => c.status === QualityCheckStatus.PENDING);
-  const passedChecks = checks.filter((c) => c.status === QualityCheckStatus.PASSED);
-  const failedChecks = checks.filter((c) => c.status === QualityCheckStatus.FAILED);
+  const pendingChecks = useMemo(() => checks.filter((c) => c.status === QualityCheckStatus.PENDING), [checks]);
+  const passedChecks = useMemo(() => checks.filter((c) => c.status === QualityCheckStatus.PASSED), [checks]);
+  const failedChecks = useMemo(() => checks.filter((c) => c.status === QualityCheckStatus.FAILED), [checks]);
 
   return (
     <div className="space-y-6 font-mono">
@@ -148,6 +148,7 @@ export default function QualityStation({ onRefreshParent, showToast, isPresentat
               onClick={fetchQualityData}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition"
               title="Refresh Queue"
+              aria-label="Refresh Quality Station"
             >
               🔄
             </button>
@@ -312,7 +313,7 @@ export default function QualityStation({ onRefreshParent, showToast, isPresentat
                       { key: 'noDamage', label: '3. Zero Cosmetic or Functional Hardware Damage' },
                       { key: 'labelReadable', label: '4. Shipping & Barcode Labels 100% Readable' },
                     ].map((item) => {
-                      const isChecked = (qcCriteria as any)[item.key];
+                      const isChecked = Boolean(qcCriteria[item.key]);
                       return (
                         <div
                           key={item.key}

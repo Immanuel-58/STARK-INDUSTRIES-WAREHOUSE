@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PackingTask, PackingStatus, Order, OrderStatus, Product, Customer } from '@/lib/types';
 import { DEMO_PRODUCTS, DEMO_CUSTOMERS } from '@/lib/seed-data';
 import { jarvisAudio } from '@/components/hud/JarvisAudio';
@@ -117,9 +117,9 @@ export default function PackingStation({ onRefreshParent, showToast, isPresentat
     }
   };
 
-  const pendingTasks = tasks.filter((t) => t.status === PackingStatus.PENDING);
-  const activeTasks = tasks.filter((t) => t.status === PackingStatus.PACKING);
-  const completedTasks = tasks.filter((t) => t.status === PackingStatus.PACKED);
+  const pendingTasks = useMemo(() => tasks.filter((t) => t.status === PackingStatus.PENDING), [tasks]);
+  const activeTasks = useMemo(() => tasks.filter((t) => t.status === PackingStatus.PACKING), [tasks]);
+  const completedTasks = useMemo(() => tasks.filter((t) => t.status === PackingStatus.PACKED), [tasks]);
 
   return (
     <div className="space-y-6 font-mono">
@@ -164,6 +164,7 @@ export default function PackingStation({ onRefreshParent, showToast, isPresentat
               onClick={fetchPackingData}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition"
               title="Refresh Queue"
+              aria-label="Refresh Packing Queue"
             >
               🔄
             </button>

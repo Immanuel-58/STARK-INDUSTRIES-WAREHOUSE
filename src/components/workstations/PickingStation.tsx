@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PickingTask, PickingStatus, OrderStatus, Product, Order, Customer } from '@/lib/types';
 import { DEMO_PRODUCTS, DEMO_CUSTOMERS } from '@/lib/seed-data';
 import { jarvisAudio } from '@/components/hud/JarvisAudio';
@@ -141,13 +141,17 @@ export default function PickingStation({ onRefreshParent, showToast, isPresentat
     }
   };
 
-  const allocatedOrdersPendingPick = orders.filter(
-    (o) => o.status === OrderStatus.ALLOCATED && !tasks.some((t) => t.order_id === o.id)
-  );
+  const taskOrderIds = useMemo(() => new Set(tasks.map((t) => t.order_id)), [tasks]);
 
-  const pendingTasks = tasks.filter((t) => t.status === PickingStatus.PENDING);
-  const activeTasks = tasks.filter((t) => t.status === PickingStatus.PICKING);
-  const completedTasks = tasks.filter((t) => t.status === PickingStatus.PICKED);
+  const allocatedOrdersPendingPick = useMemo(() => {
+    return orders.filter(
+      (o) => o.status === OrderStatus.ALLOCATED && !taskOrderIds.has(o.id)
+    );
+  }, [orders, taskOrderIds]);
+
+  const pendingTasks = useMemo(() => tasks.filter((t) => t.status === PickingStatus.PENDING), [tasks]);
+  const activeTasks = useMemo(() => tasks.filter((t) => t.status === PickingStatus.PICKING), [tasks]);
+  const completedTasks = useMemo(() => tasks.filter((t) => t.status === PickingStatus.PICKED), [tasks]);
 
   return (
     <div className="space-y-6 font-mono">
@@ -192,6 +196,7 @@ export default function PickingStation({ onRefreshParent, showToast, isPresentat
               onClick={fetchPickingData}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition"
               title="Refresh Tasks"
+              aria-label="Refresh Picking Tasks"
             >
               🔄
             </button>

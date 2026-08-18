@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dispatch, DispatchStatus, Order, OrderStatus, Product, Customer } from '@/lib/types';
 import { DEMO_PRODUCTS, DEMO_CUSTOMERS } from '@/lib/seed-data';
 import { jarvisAudio } from '@/components/hud/JarvisAudio';
@@ -83,16 +83,18 @@ export default function DispatchStation({ onRefreshParent, showToast, isPresenta
     }
   };
 
-  const pendingDispatches = dispatches.filter((d) => d.status === DispatchStatus.PENDING);
-  const inTransitDispatches = dispatches.filter((d) => d.status === DispatchStatus.IN_TRANSIT);
-  const deliveredDispatches = dispatches.filter((d) => d.status === DispatchStatus.DELIVERED);
+  const pendingDispatches = useMemo(() => dispatches.filter((d) => d.status === DispatchStatus.PENDING), [dispatches]);
+  const inTransitDispatches = useMemo(() => dispatches.filter((d) => d.status === DispatchStatus.IN_TRANSIT), [dispatches]);
+  const deliveredDispatches = useMemo(() => dispatches.filter((d) => d.status === DispatchStatus.DELIVERED), [dispatches]);
 
-  const filteredDispatches = dispatches.filter((d) => {
-    if (carrierFilter !== 'all' && !d.carrier.toLowerCase().includes(carrierFilter.toLowerCase())) {
-      return false;
-    }
-    return true;
-  });
+  const filteredDispatches = useMemo(() => {
+    return dispatches.filter((d) => {
+      if (carrierFilter !== 'all' && !d.carrier.toLowerCase().includes(carrierFilter.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [dispatches, carrierFilter]);
 
   return (
     <div className="space-y-6 font-mono">
@@ -137,6 +139,7 @@ export default function DispatchStation({ onRefreshParent, showToast, isPresenta
               onClick={fetchDispatchData}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition"
               title="Refresh Dock"
+              aria-label="Refresh Dispatch Dock"
             >
               🔄
             </button>

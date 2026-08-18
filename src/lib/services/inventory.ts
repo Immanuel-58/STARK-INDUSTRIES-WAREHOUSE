@@ -197,9 +197,14 @@ export function getMovementHistory(inventory_id?: string, product_id?: string): 
 }
 
 export function getLowStockProducts(products: Product[]): { product: Product, current_stock: number, reorder_point: number }[] {
-  const lowStock = [];
+  const stockMap = new Map<string, number>();
+  for (const item of inventoryStore) {
+    stockMap.set(item.product_id, (stockMap.get(item.product_id) || 0) + item.available_quantity);
+  }
+
+  const lowStock: { product: Product, current_stock: number, reorder_point: number }[] = [];
   for (const product of products) {
-    const stock = getAvailableStock(product.id);
+    const stock = stockMap.get(product.id) || 0;
     if (stock <= product.reorder_point && stock > 0) {
       lowStock.push({ product, current_stock: stock, reorder_point: product.reorder_point });
     }
@@ -208,9 +213,14 @@ export function getLowStockProducts(products: Product[]): { product: Product, cu
 }
 
 export function getOutOfStockProducts(products: Product[]): Product[] {
-  const outOfStock = [];
+  const stockMap = new Map<string, number>();
+  for (const item of inventoryStore) {
+    stockMap.set(item.product_id, (stockMap.get(item.product_id) || 0) + item.available_quantity);
+  }
+
+  const outOfStock: Product[] = [];
   for (const product of products) {
-    const stock = getAvailableStock(product.id);
+    const stock = stockMap.get(product.id) || 0;
     if (stock === 0) {
       outOfStock.push(product);
     }

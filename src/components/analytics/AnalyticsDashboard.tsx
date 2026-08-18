@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AnalyticsSummary, Product } from '@/lib/types';
 import { DEMO_PRODUCTS } from '@/lib/seed-data';
 import {
@@ -76,13 +76,15 @@ export default function AnalyticsDashboard({ onRefreshParent, showToast, isPrese
     { hour: '16:00 (Now)', received: analytics?.total_orders || 10, allocated: 8, picked: 7, packed: 6, dispatched: 4 },
   ];
 
-  const skuData = (analytics?.sku_stock_distribution || []).map((s) => ({
-    name: s.name.length > 12 ? s.name.slice(0, 12) + '...' : s.name,
-    available: s.available,
-    reserved: s.reserved,
-    damaged: s.damaged,
-    reorder_point: s.reorder_point,
-  }));
+  const skuData = useMemo(() => {
+    return (analytics?.sku_stock_distribution || []).map((s) => ({
+      name: s.name.length > 12 ? s.name.slice(0, 12) + '...' : s.name,
+      available: s.available,
+      reserved: s.reserved,
+      damaged: s.damaged,
+      reorder_point: s.reorder_point,
+    }));
+  }, [analytics?.sku_stock_distribution]);
 
   const tierData = analytics?.tier_distribution || [
     { tier: 'VIP Customer', count: 3, value: 12000 },

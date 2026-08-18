@@ -34,16 +34,23 @@ export function computeAnalytics(products?: Product[]): AnalyticsSummary {
   const packing_backlog = getPackingBacklog().length;
   const dispatch_backlog = getDispatches({ status: DispatchStatus.PENDING }).length;
 
+  const invByProduct = new Map<string, { available: number; reserved: number; damaged: number }>();
+  for (const inv of allInventory) {
+    const entry = invByProduct.get(inv.product_id) || { available: 0, reserved: 0, damaged: 0 };
+    entry.available += inv.available_quantity;
+    entry.reserved += inv.reserved_quantity;
+    entry.damaged += inv.damaged_quantity;
+    invByProduct.set(inv.product_id, entry);
+  }
+
   let low_stock_products = 0;
   let out_of_stock_products = 0;
 
   if (products && products.length > 0) {
     for (const p of products) {
-      const avail = allInventory
-        .filter((i) => i.product_id === p.id)
-        .reduce((sum, i) => sum + i.available_quantity, 0);
-      if (avail === 0) out_of_stock_products++;
-      else if (avail <= p.reorder_point) low_stock_products++;
+      const pInv = invByProduct.get(p.id) || { available: 0, reserved: 0, damaged: 0 };
+      if (pInv.available === 0) out_of_stock_products++;
+      else if (pInv.available <= p.reorder_point) low_stock_products++;
     }
   } else {
     low_stock_products = allInventory.filter(
@@ -133,13 +140,13 @@ export function computeAnalytics(products?: Product[]): AnalyticsSummary {
   const sku_stock_distribution: { sku: string; name: string; available: number; reserved: number; damaged: number; reorder_point: number }[] = [];
   if (products && products.length > 0) {
     for (const p of products) {
-      const pInv = allInventory.filter((i) => i.product_id === p.id);
+      const pInv = invByProduct.get(p.id) || { available: 0, reserved: 0, damaged: 0 };
       sku_stock_distribution.push({
         sku: p.sku.split('-')[1] || p.sku,
         name: p.name,
-        available: pInv.reduce((s, i) => s + i.available_quantity, 0),
-        reserved: pInv.reduce((s, i) => s + i.reserved_quantity, 0),
-        damaged: pInv.reduce((s, i) => s + i.damaged_quantity, 0),
+        available: pInv.available,
+        reserved: pInv.reserved,
+        damaged: pInv.damaged,
         reorder_point: p.reorder_point,
       });
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Order,
   OrderStatus,
@@ -394,7 +394,7 @@ export default function ControlTowerPage() {
   }, [fetchData]);
 
   // Derived calculations
-  const pipelineStages: { stage: OrderStatus; label: string; count: number }[] = [
+  const pipelineStages: { stage: OrderStatus; label: string; count: number }[] = useMemo(() => [
     { stage: OrderStatus.CREATED, label: 'Created', count: orders.filter((o) => o.status === OrderStatus.CREATED).length },
     { stage: OrderStatus.PRIORITY_SET, label: 'Prioritized', count: orders.filter((o) => o.status === OrderStatus.PRIORITY_SET).length },
     { stage: OrderStatus.ALLOCATED, label: 'Allocated', count: orders.filter((o) => o.status === OrderStatus.ALLOCATED).length },
@@ -403,13 +403,13 @@ export default function ControlTowerPage() {
     { stage: OrderStatus.QUALITY_CHECK, label: 'Quality Check', count: orders.filter((o) => o.status === OrderStatus.QUALITY_CHECK).length },
     { stage: OrderStatus.DISPATCHED, label: 'Dispatched', count: orders.filter((o) => o.status === OrderStatus.DISPATCHED).length },
     { stage: OrderStatus.COMPLETED, label: 'Completed', count: orders.filter((o) => o.status === OrderStatus.COMPLETED).length },
-  ];
+  ], [orders]);
 
-  const exceptionsCount = orders.filter((o) => o.status === OrderStatus.EXCEPTION).length;
-  const urgentOrders = orders.filter((o) => o.sla_risk?.at_risk || o.priority_score >= 80);
+  const exceptionsCount = useMemo(() => orders.filter((o) => o.status === OrderStatus.EXCEPTION).length, [orders]);
+  const urgentOrders = useMemo(() => orders.filter((o) => o.sla_risk?.at_risk || o.priority_score >= 80), [orders]);
 
   // Filtered orders list
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = useMemo(() => orders.filter((order) => {
     if (selectedStageFilter && order.status !== selectedStageFilter) return false;
     if (activeTab === 'urgent') return order.sla_risk?.at_risk || order.priority_score >= 80;
     if (activeTab === 'allocated') return order.status === OrderStatus.ALLOCATED;
@@ -420,7 +420,22 @@ export default function ControlTowerPage() {
       return [OrderStatus.DISPATCHED, OrderStatus.COMPLETED].includes(order.status);
     }
     return true;
-  });
+  }), [orders, selectedStageFilter, activeTab]);
+
+  // Pre-aggregated product inventory stock summary for O(1) rendering lookup
+  const productStockSummary = useMemo(() => {
+    const map = new Map<string, { pools: Inventory[]; totalOnHand: number; totalAvail: number; totalRes: number; totalDamaged: number }>();
+    for (const item of inventory) {
+      const existing = map.get(item.product_id) || { pools: [], totalOnHand: 0, totalAvail: 0, totalRes: 0, totalDamaged: 0 };
+      existing.pools.push(item);
+      existing.totalOnHand += item.quantity;
+      existing.totalAvail += item.available_quantity;
+      existing.totalRes += item.reserved_quantity;
+      existing.totalDamaged += item.damaged_quantity;
+      map.set(item.product_id, existing);
+    }
+    return map;
+  }, [inventory]);
 
   const getCustomer = (id: string): Customer | undefined => {
     return DEMO_CUSTOMERS.find((c) => c.id === id);
@@ -982,11 +997,12 @@ export default function ControlTowerPage() {
             {/* SKU Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {DEMO_PRODUCTS.map((prod) => {
-                const pools = inventory.filter((i) => i.product_id === prod.id);
-                const totalOnHand = pools.reduce((s, i) => s + i.quantity, 0);
-                const totalAvail = pools.reduce((s, i) => s + i.available_quantity, 0);
-                const totalRes = pools.reduce((s, i) => s + i.reserved_quantity, 0);
-                const totalDamaged = pools.reduce((s, i) => s + i.damaged_quantity, 0);
+                const stock = productStockSummary.get(prod.id) || { pools: [], totalOnHand: 0, totalAvail: 0, totalRes: 0, totalDamaged: 0 };
+                const pools = stock.pools;
+                const totalOnHand = stock.totalOnHand;
+                const totalAvail = stock.totalAvail;
+                const totalRes = stock.totalRes;
+                const totalDamaged = stock.totalDamaged;
 
                 const isOOS = totalAvail === 0;
                 const isLow = totalAvail > 0 && totalAvail <= prod.reorder_point;
@@ -1289,16 +1305,16 @@ export default function ControlTowerPage() {
                 {/* Filter Tabs */}
                 <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800 text-xs font-mono font-semibold">
                   {[
-                    { id: 'all', label: 'All' },
-                    { id: 'urgent', label: '⚡ Urgent / SLA' },
-                    { id: 'allocated', label: 'Allocated' },
-                    { id: 'workstations', label: 'Workstations' },
-                    { id: 'completed', label: 'Completed' },
+                    { id: 'all' as const, label: 'All' },
+                    { id: 'urgent' as const, label: '⚡ Urgent / SLA' },
+                    { id: 'allocated' as const, label: 'Allocated' },
+                    { id: 'workstations' as const, label: 'Workstations' },
+                    { id: 'completed' as const, label: 'Completed' },
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => {
-                        setActiveTab(tab.id as any);
+                        setActiveTab(tab.id);
                         jarvisAudio.playBlip(700, 0.04);
                       }}
                       className={`px-3 py-1.5 rounded transition ${
@@ -1315,7 +1331,7 @@ export default function ControlTowerPage() {
 
               {/* Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs md:text-sm">
+                <table aria-label="Fulfillment Orders Queue" className="w-full text-left text-xs md:text-sm">
                   <thead className="bg-slate-900/80 text-slate-300 font-mono border-b border-slate-800 uppercase text-xs font-bold">
                     <tr>
                       <th className="py-3.5 px-4">Order #</th>
@@ -1509,11 +1525,12 @@ export default function ControlTowerPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {DEMO_PRODUCTS.map((prod) => {
-                  const pools = inventory.filter((i) => i.product_id === prod.id);
-                  const totalOnHand = pools.reduce((s, i) => s + i.quantity, 0);
-                  const totalAvail = pools.reduce((s, i) => s + i.available_quantity, 0);
-                  const totalRes = pools.reduce((s, i) => s + i.reserved_quantity, 0);
-                  const totalDamaged = pools.reduce((s, i) => s + i.damaged_quantity, 0);
+                  const stock = productStockSummary.get(prod.id) || { pools: [], totalOnHand: 0, totalAvail: 0, totalRes: 0, totalDamaged: 0 };
+                  const pools = stock.pools;
+                  const totalOnHand = stock.totalOnHand;
+                  const totalAvail = stock.totalAvail;
+                  const totalRes = stock.totalRes;
+                  const totalDamaged = stock.totalDamaged;
 
                   const isOOS = totalAvail === 0;
                   const isLow = totalAvail > 0 && totalAvail <= prod.reorder_point;

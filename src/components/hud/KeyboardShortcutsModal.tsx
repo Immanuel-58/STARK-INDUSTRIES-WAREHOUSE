@@ -36,6 +36,9 @@ export default function KeyboardShortcutsModal({ isOpen, onClose, isPresentation
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-shortcuts-title"
       className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
     >
@@ -50,7 +53,7 @@ export default function KeyboardShortcutsModal({ isOpen, onClose, isPresentation
               ⌨️
             </div>
             <div>
-              <h3 className="text-base font-bold uppercase tracking-wider text-white">
+              <h3 id="modal-shortcuts-title" className="text-base font-bold uppercase tracking-wider text-white">
                 STARK HUD KEYBOARD COMMAND CENTER
               </h3>
               <p className="text-xs text-slate-400">
@@ -60,6 +63,7 @@ export default function KeyboardShortcutsModal({ isOpen, onClose, isPresentation
           </div>
           <button
             onClick={onClose}
+            aria-label="Close shortcuts modal"
             className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg text-xs transition"
           >
             ✕ [ESC]

@@ -202,7 +202,11 @@ export default function LiveDemoPresenter({
           : 'bottom-6 right-6 w-[540px] max-w-[calc(100vw-2rem)]'
       }`}
     >
-      <div className="bg-[#0b1120]/95 backdrop-blur-md border-2 border-cyan-500/50 rounded-2xl shadow-2xl overflow-hidden font-mono text-slate-100 flex flex-col">
+      <div
+        role="region"
+        aria-label="J.A.R.V.I.S Keynote Demo Controller"
+        className="bg-[#0b1120]/95 backdrop-blur-md border-2 border-cyan-500/50 rounded-2xl shadow-2xl overflow-hidden font-mono text-slate-100 flex flex-col"
+      >
         {/* Presenter HUD Header */}
         <div className="bg-gradient-to-r from-cyan-950/80 via-slate-900 to-indigo-950/80 px-4 py-3 border-b border-cyan-500/30 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -227,6 +231,7 @@ export default function LiveDemoPresenter({
               onClick={() => setMinimized(!minimized)}
               className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition"
               title={minimized ? 'Expand Demo HUD' : 'Minimize Demo HUD'}
+              aria-label={minimized ? 'Expand Demo HUD' : 'Minimize Demo HUD'}
             >
               {minimized ? '🗖' : '🗕'}
             </button>
@@ -234,6 +239,7 @@ export default function LiveDemoPresenter({
               onClick={onClose}
               className="p-1 rounded bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-300 text-xs transition"
               title="Close Demo HUD"
+              aria-label="Close Demo HUD"
             >
               ✕
             </button>

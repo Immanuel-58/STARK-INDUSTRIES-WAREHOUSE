@@ -19,7 +19,7 @@ import {
   DEMO_SCENARIOS,
   DEMO_CUSTOMERS,
 } from '@/lib/seed-data';
-import { DecisionType } from '@/lib/types';
+import { DecisionType, Order } from '@/lib/types';
 
 export async function GET() {
   return NextResponse.json({
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       ? DEMO_SCENARIOS
       : DEMO_SCENARIOS.filter((s) => s.id === scenarioId);
 
-    const createdOrdersList = [];
+    const createdOrdersList: Order[] = [];
 
     for (const scenario of selectedScenarios) {
       for (const ordData of scenario.orders) {
