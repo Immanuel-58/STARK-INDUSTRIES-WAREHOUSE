@@ -25,6 +25,8 @@ import HudTelemetryTicker from '@/components/hud/HudTelemetryTicker';
 import LiveDemoPresenter from '@/components/hud/LiveDemoPresenter';
 import KeyboardShortcutsModal from '@/components/hud/KeyboardShortcutsModal';
 import { jarvisAudio } from '@/components/hud/JarvisAudio';
+import JarvisCinematicOverlay from '@/components/hud/JarvisCinematicOverlay';
+import type { CinematicMetrics } from '@/components/hud/JarvisCinematicOverlay';
 
 interface OrderWithExtras extends Order {
   items: OrderItem[];
@@ -48,10 +50,18 @@ export default function ControlTowerPage() {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithExtras | null>(null);
   const [orderDecisions, setOrderDecisions] = useState<DecisionEvent[]>([]);
   
-  // HUD & Presentation States
+  // HUD & Presentation States (Checkpoint 20)
+  const [presentationMode, setPresentationMode] = useState<boolean>(false);
   const [demoPresenterOpen, setDemoPresenterOpen] = useState<boolean>(false);
   const [shortcutsOpen, setShortcutsOpen] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+
+  // Cinematic Mode State (Checkpoint 19)
+  const [cinematicActive, setCinematicActive] = useState<boolean>(false);
+  const [cinematicMetrics, setCinematicMetrics] = useState<CinematicMetrics | null>(null);
+
+  // Active Presentation / J.A.R.V.I.S Mode
+  const isPresentationMode = presentationMode || demoPresenterOpen || cinematicActive;
 
   // UI states
   const [loading, setLoading] = useState<boolean>(false);
@@ -76,6 +86,36 @@ export default function ControlTowerPage() {
     setSoundEnabled(nextState);
     showToast(`J.A.R.V.I.S Audio FX: ${nextState ? 'ONLINE (Audio FX Active)' : 'MUTED'}`, 'info');
   };
+
+  // ─── Cinematic Mode Trigger (Checkpoint 19) ──────────────────────────
+  const triggerCinematic = useCallback(() => {
+    // Build metrics snapshot from current state
+    const fulfillmentRate = analytics?.fulfillment_rate ?? 0;
+    const slaRiskCount = analytics?.sla_risk_orders ?? 0;
+    const slaStatus = slaRiskCount > 0 ? `${slaRiskCount} AT RISK` : 'ON TRACK';
+    const totalReserved = inventory.reduce((s, inv) => s + inv.reserved_quantity, 0);
+    const inventoryImpact = `${totalReserved} units reserved`;
+    const allocationPct = analytics?.allocation_rate ?? 0;
+    const efficiency = `${Math.round(allocationPct * 100)}%`;
+
+    setCinematicMetrics({
+      fulfillmentRate,
+      slaStatus,
+      inventoryImpact,
+      efficiency,
+      ordersProcessed: orders.length,
+      allocationsResolved: orders.filter(o =>
+        o.status !== 'CREATED' && o.status !== 'PRIORITY_SET'
+      ).length,
+      decisionsLogged: decisions.length,
+    });
+    setCinematicActive(true);
+  }, [analytics, inventory, orders, decisions]);
+
+  const handleCinematicComplete = useCallback(() => {
+    setCinematicActive(false);
+    setCinematicMetrics(null);
+  }, []);
 
   // Fetch all warehouse telemetry
   const fetchData = useCallback(async () => {
@@ -157,6 +197,8 @@ export default function ControlTowerPage() {
       if (data.success) {
         showToast(`Initialized: ${data.message}`, 'success');
         await fetchData();
+        // Checkpoint 19: Trigger cinematic after seed
+        setTimeout(() => triggerCinematic(), 300);
       } else {
         showToast(data.error || 'Seeding failed', 'error');
       }
@@ -189,6 +231,8 @@ export default function ControlTowerPage() {
           summary?.shortages > 0 ? 'warning' : 'success'
         );
         await fetchData();
+        // Checkpoint 19: Trigger cinematic after major allocation
+        setTimeout(() => triggerCinematic(), 300);
       } else {
         showToast(data.error || 'Allocation failed', 'error');
       }
@@ -314,6 +358,31 @@ export default function ControlTowerPage() {
       } else if (e.key === 'Escape') {
         setSelectedOrder(null);
         setShortcutsOpen(false);
+        // Checkpoint 19: Allow Escape to dismiss cinematic if active
+        if (cinematicActive) {
+          setCinematicActive(false);
+          setCinematicMetrics(null);
+        }
+      } else if (e.key === 'c' || e.key === 'C') {
+        // Checkpoint 19: Manual cinematic trigger for demo
+        e.preventDefault();
+        if (!cinematicActive) {
+          triggerCinematic();
+        }
+      } else if (e.key === 't' || e.key === 'T') {
+        // Checkpoint 20: Toggle STARK Presentation Mode
+        e.preventDefault();
+        setPresentationMode((prev) => {
+          const next = !prev;
+          jarvisAudio.playBlip(next ? 850 : 500, 0.08);
+          showToast(
+            next
+              ? 'STARK PRESENTATION / J.A.R.V.I.S MODE: ACTIVE'
+              : 'NORMAL MODE: ACTIVE (Standard Warehouse Labels)',
+            'info'
+          );
+          return next;
+        });
       }
     };
 
@@ -393,6 +462,7 @@ export default function ControlTowerPage() {
         decisionsCount={decisions.length}
         damagedCount={analytics?.damaged_inventory || 0}
         soundEnabled={soundEnabled}
+        isPresentationMode={isPresentationMode}
         onToggleSound={handleToggleSound}
         onOpenShortcuts={() => setShortcutsOpen(true)}
       />
@@ -411,17 +481,43 @@ export default function ControlTowerPage() {
                   STARK INDUSTRIES WAREHOUSE
                 </h1>
                 <span className="px-2 py-0.5 text-[10px] font-mono tracking-wider font-semibold rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                  J.A.R.V.I.S WMS ACTIVE
+                  {isPresentationMode ? 'J.A.R.V.I.S WMS ACTIVE' : 'WAREHOUSE WMS ONLINE'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-mono">
-                AI-Powered Warehouse Operations & Deterministic Decision Intelligence
+                {isPresentationMode
+                  ? 'AI-Powered Warehouse Operations & Deterministic Decision Intelligence'
+                  : 'Warehouse Operations & Deterministic Decision Intelligence'}
               </p>
             </div>
           </div>
 
           {/* Quick Actions & Scenario Injector */}
           <div className="flex items-center flex-wrap gap-2.5">
+            {/* STARK Presentation Mode / Normal Mode Toggle (Checkpoint 20) */}
+            <button
+              onClick={() => {
+                const next = !presentationMode;
+                setPresentationMode(next);
+                jarvisAudio.playBlip(next ? 850 : 500, 0.08);
+                showToast(
+                  next
+                    ? 'STARK PRESENTATION / J.A.R.V.I.S MODE: ACTIVE'
+                    : 'NORMAL MODE: ACTIVE (Standard Warehouse Labels)',
+                  'info'
+                );
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold border transition flex items-center gap-1.5 ${
+                isPresentationMode
+                  ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-md shadow-cyan-950/50'
+                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
+              title="Toggle STARK Presentation Mode / Normal Warehouse Mode [Hotkey: T]"
+            >
+              <span>{isPresentationMode ? '⚡ STARK MODE' : '🏢 NORMAL MODE'}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${isPresentationMode ? 'bg-cyan-400 animate-ping' : 'bg-slate-600'}`} />
+            </button>
+
             {/* Live Keynote Demo Controller Launcher */}
             <button
               onClick={() => {
@@ -515,31 +611,30 @@ export default function ControlTowerPage() {
           </div>
         </div>
 
-        {/* WORKSPACE NAVIGATION BAR */}
+        {/* WORKSPACE NAVIGATION BAR (Checkpoint 20: Dynamic Labels) */}
         <div className="max-w-[1700px] mx-auto mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-medium">
           <nav className="flex items-center gap-1 overflow-x-auto pb-1">
             {[
-              { id: 'control-tower', label: 'Mission Control', icon: '📡' },
-              { id: 'orders', label: 'Orders Queue', icon: '📦', badge: orders.length },
-              { id: 'inventory', label: 'Inventory Grid', icon: '🏬', badge: inventory.length },
-              { id: 'picking', label: 'Field Deployment (Picking)', icon: '🚜', badge: analytics?.picking_backlog },
-              { id: 'packing', label: 'Packing Station', icon: '🎁', badge: analytics?.packing_backlog },
-              { id: 'quality', label: 'Suit Inspection (QC)', icon: '🔍', badge: orders.filter(o => o.status === OrderStatus.QUALITY_CHECK).length },
-              { id: 'dispatch', label: 'Launch Sequence (Dispatch)', icon: '🚀', badge: analytics?.dispatch_backlog },
-              { id: 'decisions', label: 'J.A.R.V.I.S Decision Log', icon: '📜', badge: decisions.length },
-              { id: 'analytics', label: 'Stark Intel (Analytics)', icon: '📊' },
-              { id: 'decision-graph', label: 'Decision Graph', icon: '🌳' },
-              { id: 'simulator', label: 'J.A.R.V.I.S Simulator', icon: '🎮' },
+              { id: 'control-tower', label: isPresentationMode ? 'MISSION CONTROL' : 'Orders', icon: isPresentationMode ? '📡' : '📦' },
+              { id: 'inventory', label: isPresentationMode ? 'INVENTORY' : 'Inventory', icon: '🏬', badge: inventory.length },
+              { id: 'picking', label: isPresentationMode ? 'FIELD DEPLOYMENT' : 'Picking', icon: '🚜', badge: analytics?.picking_backlog },
+              { id: 'packing', label: isPresentationMode ? 'PACKING BAY' : 'Packing', icon: '🎁', badge: analytics?.packing_backlog },
+              { id: 'quality', label: isPresentationMode ? 'SUIT INSPECTION' : 'Quality', icon: '🔍', badge: orders.filter(o => o.status === OrderStatus.QUALITY_CHECK).length },
+              { id: 'dispatch', label: isPresentationMode ? 'LAUNCH SEQUENCE' : 'Dispatch', icon: '🚀', badge: analytics?.dispatch_backlog },
+              { id: 'decisions', label: isPresentationMode ? 'J.A.R.V.I.S ENGINE' : 'AI Decision Engine', icon: '📜', badge: decisions.length },
+              { id: 'analytics', label: isPresentationMode ? 'STARK INTEL' : 'Analytics', icon: '📊' },
+              { id: 'decision-graph', label: isPresentationMode ? 'DECISION GRAPH' : 'Decision Analysis', icon: '🌳' },
+              { id: 'simulator', label: isPresentationMode ? 'GOD MODE' : 'Operational Simulation', icon: '🎮' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {
                   setActiveNav(tab.id);
-                  if (tab.id === 'orders') setActiveTab('all');
+                  if (tab.id === 'control-tower') setActiveTab('all');
                   jarvisAudio.playBlip(700, 0.04);
                 }}
                 className={`px-3 py-1.5 rounded-md transition flex items-center gap-1.5 whitespace-nowrap ${
-                  activeNav === tab.id
+                  activeNav === tab.id || (tab.id === 'control-tower' && activeNav === 'orders')
                     ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
@@ -564,34 +659,34 @@ export default function ControlTowerPage() {
       <main className="flex-1 max-w-[1700px] w-full mx-auto p-6 space-y-6">
         {/* DEDICATED WORKSTATION VIEWS */}
         {activeNav === 'picking' && (
-          <PickingStation onRefreshParent={fetchData} showToast={showToast} />
+          <PickingStation onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {activeNav === 'packing' && (
-          <PackingStation onRefreshParent={fetchData} showToast={showToast} />
+          <PackingStation onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {activeNav === 'quality' && (
-          <QualityStation onRefreshParent={fetchData} showToast={showToast} />
+          <QualityStation onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {activeNav === 'dispatch' && (
-          <DispatchStation onRefreshParent={fetchData} showToast={showToast} />
+          <DispatchStation onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {/* GOD MODE / WHAT-IF SIMULATOR */}
         {activeNav === 'simulator' && (
-          <GodModeSimulator onRefreshParent={fetchData} showToast={showToast} />
+          <GodModeSimulator onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {/* INTERACTIVE DECISION GRAPH */}
         {activeNav === 'decision-graph' && (
-          <DecisionGraphExplorer onRefreshParent={fetchData} showToast={showToast} />
+          <DecisionGraphExplorer onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {/* OPERATIONAL ANALYTICS + TREND CHARTS */}
         {activeNav === 'analytics' && (
-          <AnalyticsDashboard onRefreshParent={fetchData} showToast={showToast} />
+          <AnalyticsDashboard onRefreshParent={fetchData} showToast={showToast} isPresentationMode={isPresentationMode} />
         )}
 
         {/* DEFAULT: CONTROL TOWER DASHBOARD */}
@@ -805,7 +900,7 @@ export default function ControlTowerPage() {
               <div className="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
-                    Fulfillment Orders Engine
+                    {isPresentationMode ? 'MISSION CONTROL // Fulfillment Queue' : 'Fulfillment Orders Queue'}
                   </h3>
                   <span className="text-xs text-slate-400 font-mono">({filteredOrders.length})</span>
                 </div>
@@ -1020,7 +1115,7 @@ export default function ControlTowerPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
-                    Warehouse Inventory & Stock Pools
+                    {isPresentationMode ? 'INVENTORY // Warehouse Stock Pools' : 'Warehouse Inventory & Stock Pools'}
                   </h3>
                   <p className="text-xs text-slate-400 font-mono">
                     Deterministic stock reservation, damaged item quarantine, and reorder triggers.
@@ -1129,7 +1224,7 @@ export default function ControlTowerPage() {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                   <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
-                    Explainable Decision Stream
+                    {isPresentationMode ? 'J.A.R.V.I.S ENGINE // Decision Stream' : 'AI Decision Engine Stream'}
                   </h3>
                 </div>
                 <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
@@ -1366,6 +1461,14 @@ export default function ControlTowerPage() {
       <KeyboardShortcutsModal
         isOpen={shortcutsOpen}
         onClose={() => setShortcutsOpen(false)}
+        isPresentationMode={isPresentationMode}
+      />
+
+      {/* J.A.R.V.I.S CINEMATIC OVERLAY (Checkpoint 19) */}
+      <JarvisCinematicOverlay
+        active={cinematicActive}
+        metrics={cinematicMetrics}
+        onComplete={handleCinematicComplete}
       />
     </div>
   );

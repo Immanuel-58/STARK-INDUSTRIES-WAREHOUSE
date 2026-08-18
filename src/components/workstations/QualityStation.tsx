@@ -8,9 +8,10 @@ import { jarvisAudio } from '@/components/hud/JarvisAudio';
 interface QualityStationProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
-export default function QualityStation({ onRefreshParent, showToast }: QualityStationProps) {
+export default function QualityStation({ onRefreshParent, showToast, isPresentationMode = false }: QualityStationProps) {
   const [checks, setChecks] = useState<QualityCheck[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedCheck, setSelectedCheck] = useState<QualityCheck | null>(null);
@@ -116,14 +117,16 @@ export default function QualityStation({ onRefreshParent, showToast }: QualitySt
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  Quality Control Station #3 (Optical & Weight QA)
+                  {isPresentationMode ? 'SUIT INSPECTION #3 (Optical & QA)' : 'Quality Control Station #3 (Optical & Weight QA)'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                  DEFECT SHIELD ACTIVE
+                  {isPresentationMode ? 'SUIT INSPECTION ACTIVE' : 'DEFECT SHIELD ACTIVE'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Seal integrity, item count verification, anti-tamper validation, and defect exception routing.
+                {isPresentationMode
+                  ? 'Suit sensor diagnostics, arc-seal integrity, hardware defect quarantine, and zero-defect clearance.'
+                  : 'Seal integrity, item count verification, anti-tamper validation, and defect exception routing.'}
               </p>
             </div>
           </div>

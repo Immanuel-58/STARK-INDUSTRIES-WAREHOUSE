@@ -9,6 +9,7 @@ interface HudTelemetryTickerProps {
   decisionsCount: number;
   damagedCount: number;
   soundEnabled: boolean;
+  isPresentationMode?: boolean;
   onToggleSound: () => void;
   onOpenShortcuts: () => void;
 }
@@ -20,6 +21,7 @@ export default function HudTelemetryTicker({
   decisionsCount,
   damagedCount,
   soundEnabled,
+  isPresentationMode = false,
   onToggleSound,
   onOpenShortcuts,
 }: HudTelemetryTickerProps) {
@@ -55,7 +57,9 @@ export default function HudTelemetryTicker({
       <div className="flex items-center gap-3 shrink-0">
         <div className="flex items-center gap-1.5 text-cyan-400">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-          <span className="font-bold tracking-widest text-[10px] uppercase">STARK CORE // J.A.R.V.I.S</span>
+          <span className="font-bold tracking-widest text-[10px] uppercase">
+            {isPresentationMode ? 'STARK CORE // J.A.R.V.I.S' : 'WAREHOUSE CORE // TELEMETRY'}
+          </span>
         </div>
         <span className="text-slate-700">|</span>
         <div className="flex items-center gap-1.5 text-slate-300">

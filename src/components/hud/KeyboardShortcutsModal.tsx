@@ -5,31 +5,34 @@ import React from 'react';
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isPresentationMode?: boolean;
 }
 
-const SHORTCUTS = [
-  { key: 'D', description: 'Toggle Live Keynote / Demo Presenter HUD', category: 'Presentation' },
-  { key: 'A', description: 'Trigger AI Allocation Conflict Resolution', category: 'Core Engine' },
-  { key: 'P', description: 'Advance Fulfillment Pipeline Step', category: 'Core Engine' },
-  { key: 'R', description: 'Refresh Warehouse Telemetry Live Data', category: 'Data' },
-  { key: 'M', description: 'Toggle J.A.R.V.I.S Audio FX (Web Audio API)', category: 'Audio' },
-  { key: '1', description: 'Jump to Mission Control Overview', category: 'Navigation' },
-  { key: '2', description: 'Jump to Orders Queue', category: 'Navigation' },
-  { key: '3', description: 'Jump to Inventory Stock Pools', category: 'Navigation' },
-  { key: '4', description: 'Jump to Picking Workstation', category: 'Workstations' },
-  { key: '5', description: 'Jump to Packing Workstation', category: 'Workstations' },
-  { key: '6', description: 'Jump to Suit Inspection (QC)', category: 'Workstations' },
-  { key: '7', description: 'Jump to Launch Sequence (Dispatch)', category: 'Workstations' },
-  { key: '8', description: 'Jump to J.A.R.V.I.S Decision Log', category: 'Audit' },
-  { key: '9', description: 'Jump to Stark Intel Analytics & Trend Charts', category: 'Analytics' },
-  { key: '0', description: 'Jump to Interactive Decision Graph Explorer', category: 'Graph' },
-  { key: 'S', description: 'Jump to J.A.R.V.I.S What-If Simulator', category: 'Simulation' },
-  { key: '?', description: 'Open / Close this Keyboard Shortcuts HUD', category: 'Help' },
-  { key: 'Esc', description: 'Close modals and drawers', category: 'General' },
-];
-
-export default function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
+export default function KeyboardShortcutsModal({ isOpen, onClose, isPresentationMode = false }: KeyboardShortcutsModalProps) {
   if (!isOpen) return null;
+
+  const SHORTCUTS = [
+    { key: 'T', description: 'Toggle STARK Presentation Mode / Normal Mode', category: 'Mode' },
+    { key: 'C', description: 'Trigger J.A.R.V.I.S Cinematic Telemetry Overlay', category: 'Presentation' },
+    { key: 'D', description: 'Toggle Live Keynote / Demo Presenter Playbook', category: 'Presentation' },
+    { key: 'A', description: 'Trigger AI Allocation Conflict Resolution', category: 'Core Engine' },
+    { key: 'P', description: 'Advance Fulfillment Pipeline Step', category: 'Core Engine' },
+    { key: 'R', description: 'Refresh Warehouse Telemetry Live Data', category: 'Data' },
+    { key: 'M', description: 'Toggle J.A.R.V.I.S Audio FX (Web Audio API)', category: 'Audio' },
+    { key: '1', description: isPresentationMode ? 'Jump to MISSION CONTROL' : 'Jump to Orders Overview', category: 'Navigation' },
+    { key: '2', description: isPresentationMode ? 'Jump to MISSION CONTROL (Queue)' : 'Jump to Orders Queue', category: 'Navigation' },
+    { key: '3', description: isPresentationMode ? 'Jump to INVENTORY' : 'Jump to Inventory Stock Pools', category: 'Navigation' },
+    { key: '4', description: isPresentationMode ? 'Jump to FIELD DEPLOYMENT (Picking)' : 'Jump to Picking Workstation', category: 'Workstations' },
+    { key: '5', description: isPresentationMode ? 'Jump to PACKING BAY' : 'Jump to Packing Workstation', category: 'Workstations' },
+    { key: '6', description: isPresentationMode ? 'Jump to SUIT INSPECTION' : 'Jump to Quality Control', category: 'Workstations' },
+    { key: '7', description: isPresentationMode ? 'Jump to LAUNCH SEQUENCE' : 'Jump to Dispatch Dock', category: 'Workstations' },
+    { key: '8', description: isPresentationMode ? 'Jump to J.A.R.V.I.S ENGINE' : 'Jump to AI Decision Log', category: 'Audit' },
+    { key: '9', description: isPresentationMode ? 'Jump to STARK INTEL' : 'Jump to Analytics & Trend Charts', category: 'Analytics' },
+    { key: '0', description: isPresentationMode ? 'Jump to DECISION GRAPH' : 'Jump to Decision Analysis', category: 'Graph' },
+    { key: 'S', description: isPresentationMode ? 'Jump to GOD MODE' : 'Jump to Operational Simulation', category: 'Simulation' },
+    { key: '?', description: 'Open / Close this Keyboard Shortcuts HUD', category: 'Help' },
+    { key: 'Esc', description: 'Close modals, drawers, and cinematic overlay', category: 'General' },
+  ];
 
   return (
     <div

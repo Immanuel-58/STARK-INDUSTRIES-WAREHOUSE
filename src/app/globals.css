@@ -89,3 +89,374 @@ body {
 .hud-glow-rose {
   box-shadow: 0 0 15px -3px rgba(244, 63, 94, 0.15);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   J.A.R.V.I.S CINEMATIC OVERLAY — Checkpoint 19
+   Dark graphite / white UI / cyan telemetry / subtle Stark red accents
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.jarvis-cinematic-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Background: dark graphite with subtle grid pattern + vignette */
+.jarvis-cin-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(9,13,22,0.92) 0%, rgba(6,8,14,0.98) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(6,182,212,0.03) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(6,182,212,0.03) 40px);
+  background-size: cover, 40px 40px, 40px 40px;
+}
+
+/* ─── Radial Reticle ────────────────────────────────────────────────────── */
+.jarvis-cin-reticle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jarvis-cin-reticle-svg {
+  width: min(70vmin, 420px);
+  height: min(70vmin, 420px);
+  animation: jarvis-cin-reticle-rotate 20s linear infinite;
+}
+
+.jarvis-ring {
+  fill: none;
+  stroke-width: 0.5;
+}
+
+.jarvis-ring-outer {
+  stroke: rgba(6,182,212,0.12);
+  stroke-dasharray: 4 8;
+  animation: jarvis-cin-ring-spin 12s linear infinite reverse;
+  transform-origin: center;
+}
+
+.jarvis-ring-mid {
+  stroke: rgba(255,255,255,0.06);
+  stroke-dasharray: 2 12;
+}
+
+.jarvis-ring-inner {
+  stroke: rgba(6,182,212,0.08);
+  stroke-dasharray: 1 6;
+  animation: jarvis-cin-ring-spin 8s linear infinite;
+  transform-origin: center;
+}
+
+.jarvis-tick {
+  stroke: rgba(255,255,255,0.08);
+  stroke-width: 0.5;
+}
+
+.jarvis-scan-arc {
+  fill: none;
+  stroke: rgba(6,182,212,0.25);
+  stroke-width: 2;
+  stroke-dasharray: 80 900;
+  stroke-linecap: round;
+  animation: jarvis-cin-arc-sweep 3s linear infinite;
+  transform-origin: center;
+}
+
+.jarvis-crosshair {
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 0.5;
+}
+
+@keyframes jarvis-cin-reticle-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes jarvis-cin-ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes jarvis-cin-arc-sweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── Scan Line ─────────────────────────────────────────────────────────── */
+.jarvis-cin-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.4) 30%, rgba(6,182,212,0.6) 50%, rgba(6,182,212,0.4) 70%, transparent 100%);
+  box-shadow: 0 0 8px rgba(6,182,212,0.3);
+  animation: jarvis-cin-scanline-sweep 2.5s ease-in-out infinite;
+}
+
+@keyframes jarvis-cin-scanline-sweep {
+  0%   { top: 10%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 90%; opacity: 0; }
+}
+
+/* ─── Center Content ────────────────────────────────────────────────────── */
+.jarvis-cin-center {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  max-width: 720px;
+  padding: 0 24px;
+}
+
+.jarvis-cin-hud-layout {
+  gap: 16px;
+}
+
+.jarvis-cin-label {
+  line-height: 1.4;
+}
+
+/* ─── Typography ────────────────────────────────────────────────────────── */
+.jarvis-cin-mono {
+  font-family: var(--font-geist-mono), 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  letter-spacing: 0.08em;
+}
+
+.jarvis-cin-xxs  { font-size: 10px; }
+.jarvis-cin-xs   { font-size: 11px; }
+.jarvis-cin-sm   { font-size: 13px; }
+.jarvis-cin-md   { font-size: 20px; font-weight: 700; }
+.jarvis-cin-lg   { font-size: 28px; font-weight: 800; letter-spacing: 0.15em; }
+
+.jarvis-cin-white { color: rgba(255,255,255,0.95); }
+.jarvis-cin-cyan  { color: rgba(6,182,212,0.9); }
+.jarvis-cin-dim   { color: rgba(148,163,184,0.7); }
+.jarvis-cin-red   { color: rgba(220,38,38,0.8); }
+
+.jarvis-cin-glow {
+  text-shadow: 0 0 20px rgba(6,182,212,0.2), 0 0 40px rgba(6,182,212,0.08);
+}
+
+/* ─── Divider ───────────────────────────────────────────────────────────── */
+.jarvis-cin-divider {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent);
+  margin: 4px 0;
+}
+
+/* ─── Progress Bar ──────────────────────────────────────────────────────── */
+.jarvis-cin-progress-track {
+  width: 260px;
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 1px;
+  overflow: hidden;
+  margin: 6px 0;
+}
+
+.jarvis-cin-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(6,182,212,0.8), rgba(6,182,212,0.4));
+  border-radius: 1px;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 6px rgba(6,182,212,0.4);
+}
+
+/* ─── Metric Cards ──────────────────────────────────────────────────────── */
+.jarvis-cin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.jarvis-cin-metric-card {
+  background: rgba(15,23,42,0.7);
+  border: 1px solid rgba(30,41,59,0.6);
+  border-radius: 8px;
+  padding: 10px 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.jarvis-cin-metric-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.jarvis-cin-metric-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(148,163,184,0.6);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.jarvis-cin-metric-value {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* ─── Micro Telemetry Bars ──────────────────────────────────────────────── */
+.jarvis-cin-micro-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 1px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.jarvis-cin-micro-bar-fill {
+  height: 100%;
+  background: rgba(6,182,212,0.3);
+  border-radius: 1px;
+}
+
+/* ─── Telemetry Row (bottom mini graph) ─────────────────────────────────── */
+.jarvis-cin-telemetry-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 36px;
+  margin-top: 8px;
+}
+
+.jarvis-cin-tel-bar {
+  width: 4px;
+  background: rgba(6,182,212,0.2);
+  border-radius: 1px 1px 0 0;
+  animation: jarvis-cin-bar-pulse 2s ease-in-out infinite;
+}
+
+.jarvis-cin-tel-bar:nth-child(odd) {
+  animation-delay: 0.3s;
+}
+
+@keyframes jarvis-cin-bar-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+/* ─── Data Streams (scan phase edges) ───────────────────────────────────── */
+.jarvis-cin-datastream {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jarvis-cin-datastream-left  { left: 24px; text-align: left; }
+.jarvis-cin-datastream-right { right: 24px; text-align: right; }
+
+/* ─── Corner Brackets ───────────────────────────────────────────────────── */
+.jarvis-cin-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.jarvis-cin-corner-tl {
+  top: 16px; left: 16px;
+  border-top: 1px solid rgba(6,182,212,0.3);
+  border-left: 1px solid rgba(6,182,212,0.3);
+}
+
+.jarvis-cin-corner-tr {
+  top: 16px; right: 16px;
+  border-top: 1px solid rgba(6,182,212,0.3);
+  border-right: 1px solid rgba(6,182,212,0.3);
+}
+
+.jarvis-cin-corner-bl {
+  bottom: 16px; left: 16px;
+  border-bottom: 1px solid rgba(6,182,212,0.3);
+  border-left: 1px solid rgba(6,182,212,0.3);
+}
+
+.jarvis-cin-corner-br {
+  bottom: 16px; right: 16px;
+  border-bottom: 1px solid rgba(220,38,38,0.25);
+  border-right: 1px solid rgba(220,38,38,0.25);
+}
+
+/* ─── Edge Text ─────────────────────────────────────────────────────────── */
+.jarvis-cin-edge-text {
+  position: absolute;
+  z-index: 10;
+}
+
+.jarvis-cin-edge-bottom {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ─── Nominal Phase Dot ─────────────────────────────────────────────────── */
+.jarvis-cin-nominal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(220,38,38,0.7);
+  box-shadow: 0 0 10px rgba(220,38,38,0.4);
+  animation: jarvis-cin-dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes jarvis-cin-dot-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.3); }
+}
+
+/* ─── Entry Animations ──────────────────────────────────────────────────── */
+.jarvis-cin-fadein {
+  animation: jarvis-cin-fadein-kf 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes jarvis-cin-fadein-kf {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.jarvis-cin-scalein {
+  animation: jarvis-cin-scalein-kf 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes jarvis-cin-scalein-kf {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .jarvis-cin-lg { font-size: 20px; }
+  .jarvis-cin-md { font-size: 16px; }
+  .jarvis-cin-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .jarvis-cin-datastream { display: none; }
+  .jarvis-cin-reticle-svg { width: 55vmin; height: 55vmin; }
+}

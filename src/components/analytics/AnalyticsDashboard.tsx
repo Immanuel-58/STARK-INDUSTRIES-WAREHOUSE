@@ -22,12 +22,13 @@ import {
 interface AnalyticsDashboardProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 const TIER_COLORS = ['#a855f7', '#3b82f6', '#64748b'];
 
-export default function AnalyticsDashboard({ onRefreshParent, showToast }: AnalyticsDashboardProps) {
+export default function AnalyticsDashboard({ onRefreshParent, showToast, isPresentationMode = false }: AnalyticsDashboardProps) {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeTimeframe, setActiveTimeframe] = useState<string>('today');
@@ -107,14 +108,16 @@ export default function AnalyticsDashboard({ onRefreshParent, showToast }: Analy
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  Operational Analytics & Fulfillment Telemetry
+                  {isPresentationMode ? 'STARK INTEL // Telemetry & Intelligence' : 'Operational Analytics & Fulfillment Telemetry'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                  REALTIME METRICS
+                  {isPresentationMode ? 'STARK INTEL ACTIVE' : 'REALTIME METRICS'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                End-to-end throughput velocity, SLA compliance, stock health curves, and bottleneck diagnostics.
+                {isPresentationMode
+                  ? 'End-to-end throughput velocity, SLA compliance, stock health curves, and neural bottleneck diagnostics.'
+                  : 'End-to-end throughput velocity, SLA compliance, stock health curves, and bottleneck diagnostics.'}
               </p>
             </div>
           </div>

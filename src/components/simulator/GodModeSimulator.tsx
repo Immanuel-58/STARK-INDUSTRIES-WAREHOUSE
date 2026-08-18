@@ -8,6 +8,7 @@ import { jarvisAudio } from '@/components/hud/JarvisAudio';
 interface GodModeSimulatorProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
 interface CustomOrderInput {
@@ -109,7 +110,7 @@ const PRESET_SIMULATIONS = [
   },
 ];
 
-export default function GodModeSimulator({ onRefreshParent, showToast }: GodModeSimulatorProps) {
+export default function GodModeSimulator({ onRefreshParent, showToast, isPresentationMode = false }: GodModeSimulatorProps) {
   const [selectedPreset, setSelectedPreset] = useState<string>('preset-scarce-conflict');
   const [customOrders, setCustomOrders] = useState<CustomOrderInput[]>(PRESET_SIMULATIONS[0].orders);
   const [damagedStockQty, setDamagedStockQty] = useState<number>(0);
@@ -246,14 +247,16 @@ export default function GodModeSimulator({ onRefreshParent, showToast }: GodMode
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  God Mode / What-If Conflict Simulator
+                  {isPresentationMode ? 'GOD MODE / What-If Conflict Simulator' : 'Operational Simulation / Conflict Sandbox'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-purple-500/10 border border-purple-500/30 text-purple-400">
-                  SANDBOX ISOLATED
+                  {isPresentationMode ? 'GOD MODE ACTIVE' : 'SANDBOX ISOLATED'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Stress-test priority scoring, multi-order stock contention, shortage isolation, and exception recommendations in zero-risk sandbox.
+                {isPresentationMode
+                  ? 'Zero-risk Stark neural simulation sandbox for priority scoring, stock contention, shortage isolation, and exception routing.'
+                  : 'Stress-test priority scoring, multi-order stock contention, shortage isolation, and exception recommendations in zero-risk sandbox.'}
               </p>
             </div>
           </div>

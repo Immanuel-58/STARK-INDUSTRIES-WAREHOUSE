@@ -8,9 +8,10 @@ import { jarvisAudio } from '@/components/hud/JarvisAudio';
 interface PackingStationProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
-export default function PackingStation({ onRefreshParent, showToast }: PackingStationProps) {
+export default function PackingStation({ onRefreshParent, showToast, isPresentationMode = false }: PackingStationProps) {
   const [tasks, setTasks] = useState<PackingTask[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedTask, setSelectedTask] = useState<PackingTask | null>(null);
@@ -132,14 +133,16 @@ export default function PackingStation({ onRefreshParent, showToast }: PackingSt
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  Packing Workstation #2 (Carton & Seal Dock)
+                  {isPresentationMode ? 'PACKING BAY #2 (Carton & Seal Dock)' : 'Packing Station #2 (Carton & Seal Dock)'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-400">
-                  PACK SCALE ONLINE
+                  {isPresentationMode ? 'PACKING BAY ONLINE' : 'PACK SCALE ONLINE'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Item verification, dunnage optimization, barcoded sealing, and tare weight verification.
+                {isPresentationMode
+                  ? 'Stark packaging integrity, dunnage verification, anti-tamper sealing, and tare weight check.'
+                  : 'Item verification, dunnage optimization, barcoded sealing, and tare weight verification.'}
               </p>
             </div>
           </div>

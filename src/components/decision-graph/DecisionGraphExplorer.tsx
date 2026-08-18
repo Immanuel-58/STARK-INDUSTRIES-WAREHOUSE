@@ -15,6 +15,7 @@ import { NODE_STATUS_COLORS, NODE_TYPE_ICONS, DEFAULT_LAYOUT_CONFIG } from './gr
 interface DecisionGraphExplorerProps {
   onRefreshParent: () => void;
   showToast: (text: string, type: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
 // ─── Order Summary (for picker) ─────────────────────────────────────────────
@@ -136,7 +137,7 @@ function statusBadgeColor(status: string): { bg: string; text: string } {
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default function DecisionGraphExplorer({ onRefreshParent, showToast }: DecisionGraphExplorerProps) {
+export default function DecisionGraphExplorer({ onRefreshParent, showToast, isPresentationMode = false }: DecisionGraphExplorerProps) {
   const [ordersList, setOrdersList] = useState<OrderSummary[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [graphData, setGraphData] = useState<DecisionGraphData | null>(null);
@@ -271,10 +272,12 @@ export default function DecisionGraphExplorer({ onRefreshParent, showToast }: De
         <div>
           <h2 className="text-lg font-bold text-white font-mono tracking-tight flex items-center gap-2">
             <span className="text-xl">🌳</span>
-            Interactive Decision Graph
+            {isPresentationMode ? 'DECISION GRAPH // Interactive DAG' : 'Interactive Decision Analysis Graph'}
           </h2>
           <p className="text-xs text-slate-400 mt-0.5 font-mono">
-            Trace every deterministic decision for any order through the fulfillment pipeline
+            {isPresentationMode
+              ? 'Trace J.A.R.V.I.S deterministic decision DAG for any order through the fulfillment pipeline'
+              : 'Trace every deterministic decision for any order through the fulfillment pipeline'}
           </p>
         </div>
         <div className="flex items-center gap-2">

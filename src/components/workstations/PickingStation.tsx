@@ -8,9 +8,10 @@ import { jarvisAudio } from '@/components/hud/JarvisAudio';
 interface PickingStationProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
-export default function PickingStation({ onRefreshParent, showToast }: PickingStationProps) {
+export default function PickingStation({ onRefreshParent, showToast, isPresentationMode = false }: PickingStationProps) {
   const [tasks, setTasks] = useState<PickingTask[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedTask, setSelectedTask] = useState<PickingTask | null>(null);
@@ -160,14 +161,16 @@ export default function PickingStation({ onRefreshParent, showToast }: PickingSt
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  Picking Workstation #1 (Zone A/B)
+                  {isPresentationMode ? 'FIELD DEPLOYMENT #1 (Zone A/B)' : 'Picking Station #1 (Zone A/B)'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/10 border border-amber-500/30 text-amber-400">
-                  SCANNER CONNECTED
+                  {isPresentationMode ? 'FIELD DEPLOYMENT ACTIVE' : 'SCANNER CONNECTED'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Optimized wave picking, bin-sequence navigation, and item verification console.
+                {isPresentationMode
+                  ? 'Suit & component field wave retrieval, bin-sequence navigation, and item verification console.'
+                  : 'Optimized wave picking, bin-sequence navigation, and item verification console.'}
               </p>
             </div>
           </div>

@@ -8,9 +8,10 @@ import { jarvisAudio } from '@/components/hud/JarvisAudio';
 interface DispatchStationProps {
   onRefreshParent: () => void;
   showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isPresentationMode?: boolean;
 }
 
-export default function DispatchStation({ onRefreshParent, showToast }: DispatchStationProps) {
+export default function DispatchStation({ onRefreshParent, showToast, isPresentationMode = false }: DispatchStationProps) {
   const [dispatches, setDispatches] = useState<Dispatch[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedDispatch, setSelectedDispatch] = useState<Dispatch | null>(null);
@@ -105,14 +106,16 @@ export default function DispatchStation({ onRefreshParent, showToast }: Dispatch
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold uppercase text-white tracking-wide">
-                  Outbound Dispatch & Shipping Dock (Bay 4-7)
+                  {isPresentationMode ? 'LAUNCH SEQUENCE & Outbound Dock (Bay 4-7)' : 'Outbound Dispatch & Shipping Dock (Bay 4-7)'}
                 </h2>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-500/10 border border-blue-500/30 text-blue-400">
-                  CARRIER API SYNCED
+                  {isPresentationMode ? 'LAUNCH PROTOCOL SYNCED' : 'CARRIER API SYNCED'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Carrier manifest generation, barcode shipping labels, freight dispatch, and proof of delivery tracking.
+                {isPresentationMode
+                  ? 'Stark carrier telemetry, quantum tracking IDs, automated launch manifests, and delivery surveillance.'
+                  : 'Carrier manifest generation, barcode shipping labels, freight dispatch, and proof of delivery tracking.'}
               </p>
             </div>
           </div>
