@@ -1,10 +1,10 @@
-# STARK INDUSTRIES WAREHOUSE — J.A.R.V.I.S WMS
+# STARK INDUSTRIES WAREHOUSE — J.A.R.V.I.S 
 
 > AI-Powered Autonomous Warehouse Decision Intelligence & Real-Time Fulfillment Orchestration Platform.
 
 ---
 
-## ⚡ System Overview
+##⚡ System Overview
 
 **STARK INDUSTRIES WAREHOUSE** is a deterministic warehouse management and decision execution system powered by **J.A.R.V.I.S**. It dynamically resolves fulfillment bottlenecks, executes intelligent inventory allocation, manages SLA breach risks, orchestrates workstation pipelines, and traces causal decision graphs.
 
