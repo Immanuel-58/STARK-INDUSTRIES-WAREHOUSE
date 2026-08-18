@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # ⚡ STARK INDUSTRIES WAREHOUSE — J.A.R.V.I.S WMS
+=======
+# STARK INDUSTRIES WAREHOUSE — J.A.R.V.I.S 
+>>>>>>> origin/main
 
 > **Autonomous Warehouse Decision Intelligence, Explainable Causal Graph & Real-Time Fulfillment Orchestration Platform**
 
@@ -10,7 +14,11 @@
 
 ---
 
+<<<<<<< HEAD
 ## 📑 Table of Contents
+=======
+##⚡ System Overview
+>>>>>>> origin/main
 
 - [Executive Summary](#-executive-summary)
 - [The Core Problem: Beyond Static Warehouse CRUD](#-the-core-problem-beyond-static-warehouse-crud)
