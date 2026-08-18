@@ -152,55 +152,55 @@ export default function AnalyticsDashboard({ onRefreshParent, showToast, isPrese
       </div>
 
       {/* TOP KPI STRIP */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">Fulfillment Rate</div>
-          <div className="text-2xl font-bold text-emerald-400 mt-1">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-emerald-300 text-xs font-bold uppercase tracking-wider">Fulfillment Rate</div>
+          <div className="text-3xl font-black font-mono text-emerald-400 mt-2">
             {analytics ? `${Math.round(analytics.fulfillment_rate * 100)}%` : '0%'}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Delivered / Total Orders</div>
+          <div className="text-xs text-slate-300 mt-1">Delivered / Total Orders</div>
         </div>
 
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">Allocation Efficiency</div>
-          <div className="text-2xl font-bold text-cyan-300 mt-1">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-cyan-300 text-xs font-bold uppercase tracking-wider">Allocation Rate</div>
+          <div className="text-3xl font-black font-mono text-cyan-300 mt-2">
             {analytics ? `${Math.round(analytics.allocation_rate * 100)}%` : '0%'}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">
+          <div className="text-xs text-slate-300 mt-1">
             {analytics?.partial_allocations || 0} partial allocations
           </div>
         </div>
 
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">Inventory Utilization</div>
-          <div className="text-2xl font-bold text-blue-400 mt-1">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-blue-300 text-xs font-bold uppercase tracking-wider">Storage Capacity</div>
+          <div className="text-3xl font-black font-mono text-blue-400 mt-2">
             {analytics ? `${Math.round(analytics.inventory_utilization * 100)}%` : '0%'}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Of 10,000 unit capacity</div>
+          <div className="text-xs text-slate-300 mt-1">Of 10,000 unit capacity</div>
         </div>
 
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">SLA Urgent Queue</div>
-          <div className="text-2xl font-bold text-amber-400 mt-1">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-amber-300 text-xs font-bold uppercase tracking-wider">SLA Urgent Queue</div>
+          <div className="text-3xl font-black font-mono text-amber-400 mt-2">
             {analytics?.urgent_orders || 0}
           </div>
-          <div className="text-[10px] text-amber-400/80 mt-1">Orders approaching deadline</div>
+          <div className="text-xs text-amber-300/90 mt-1">Orders approaching deadline</div>
         </div>
 
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">Station Workload</div>
-          <div className="text-2xl font-bold text-indigo-300 mt-1">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-indigo-300 text-xs font-bold uppercase tracking-wider">Workstations Queue</div>
+          <div className="text-3xl font-black font-mono text-indigo-300 mt-2">
             {(analytics?.picking_backlog || 0) + (analytics?.packing_backlog || 0) + (analytics?.dispatch_backlog || 0)}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Active tasks in transit</div>
+          <div className="text-xs text-slate-300 mt-1">Active tasks in transit</div>
         </div>
 
-        <div className="bg-[#0f172a]/90 border border-slate-800 rounded-xl p-4">
-          <div className="text-slate-500 text-[10px] uppercase">Damaged Quarantined</div>
-          <div className="text-2xl font-bold text-rose-400 mt-1">
+        <div className="bg-[#0f172a]/95 border border-slate-800 rounded-xl p-4 md:p-5 flex flex-col justify-between">
+          <div className="text-rose-300 text-xs font-bold uppercase tracking-wider">Damaged Quarantined</div>
+          <div className="text-3xl font-black font-mono text-rose-400 mt-2">
             {analytics?.damaged_inventory || 0}
           </div>
-          <div className="text-[10px] text-slate-400 mt-1">Units isolated from pool</div>
+          <div className="text-xs text-rose-300/90 mt-1">Units isolated from pool</div>
         </div>
       </div>
 
@@ -210,14 +210,14 @@ export default function AnalyticsDashboard({ onRefreshParent, showToast, isPrese
         <div className="lg:col-span-7 bg-[#0c1222] border border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white">
                 Fulfillment Velocity & Shift Progression
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Order flow across shift intervals (Received $\rightarrow$ Allocated $\rightarrow$ Picked $\rightarrow$ Packed $\rightarrow$ Dispatched)
+              <p className="text-xs text-slate-300">
+                Order flow across shift intervals (Received → Allocated → Picked → Packed → Dispatched)
               </p>
             </div>
-            <span className="text-[10px] text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+            <span className="text-xs font-bold text-cyan-300 bg-cyan-950/60 px-2.5 py-1 rounded border border-cyan-500/30">
               Shift 1 (08:00 - 16:00)
             </span>
           </div>

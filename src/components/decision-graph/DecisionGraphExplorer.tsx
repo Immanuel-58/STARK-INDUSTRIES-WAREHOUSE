@@ -372,29 +372,29 @@ export default function DecisionGraphExplorer({ onRefreshParent, showToast, isPr
                         <div className="text-xs text-slate-400 mt-0.5">{order.customer_name}</div>
                       </div>
                       <div
-                        className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold"
+                        className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase"
                         style={{ backgroundColor: sb.bg, color: sb.text }}
                       >
                         {order.status}
                       </div>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <div className="mt-3 flex items-center justify-between text-xs font-mono text-slate-300">
                       <div className="flex items-center gap-3">
-                        <span style={{ color: tierColor(order.customer_tier) }}>
-                          {order.customer_tier.toUpperCase()}
+                        <span className="font-bold uppercase" style={{ color: tierColor(order.customer_tier) }}>
+                          {order.customer_tier}
                         </span>
                         <span>{order.channel}</span>
-                        <span>${order.total_value.toFixed(0)}</span>
+                        <span className="font-bold text-white">${order.total_value.toFixed(0)}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-cyan-400/80">
+                      <div className="flex items-center gap-1.5 text-cyan-300 font-semibold">
                         <span>📊 {order.decision_count} decisions</span>
                         <span className="opacity-0 group-hover:opacity-100 transition text-cyan-400">→</span>
                       </div>
                     </div>
 
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all"
                           style={{
@@ -407,8 +407,8 @@ export default function DecisionGraphExplorer({ onRefreshParent, showToast, isPr
                           }}
                         />
                       </div>
-                      <span className="text-[10px] font-mono text-slate-500">
-                        P:{order.priority_score.toFixed(0)}
+                      <span className="text-xs font-mono text-slate-300 font-bold">
+                        Score: {order.priority_score.toFixed(0)}
                       </span>
                     </div>
                   </button>
